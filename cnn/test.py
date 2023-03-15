@@ -23,7 +23,8 @@ parser.add_argument('--report_freq', type=float, default=50, help='report freque
 parser.add_argument('--gpu', type=int, default=0, help='gpu device id')
 parser.add_argument('--init_channels', type=int, default=36, help='num of init channels')
 parser.add_argument('--layers', type=int, default=20, help='total number of layers')
-parser.add_argument('--model_path', type=str, default='EXP/model.pt', help='path of pretrained model')
+# D:\MODELMODELMODELMODELMODEL\darts
+parser.add_argument('--model_path', type=str, default='D:/MODELMODELMODELMODELMODEL/darts/cifar10_model.pt', help='path of pretrained model')
 parser.add_argument('--auxiliary', action='store_true', default=False, help='use auxiliary tower')
 parser.add_argument('--cutout', action='store_true', default=False, help='use cutout')
 parser.add_argument('--cutout_length', type=int, default=16, help='cutout length')
@@ -82,7 +83,7 @@ def infer(test_queue, model, criterion):
 
   for step, (input, target) in enumerate(test_queue):
     input = Variable(input, volatile=True).cuda()
-    target = Variable(target, volatile=True).cuda(async=True)
+    target = Variable(target, volatile=True).cuda(non_blocking =True)
 
     logits, _ = model(input)
     loss = criterion(logits, target)

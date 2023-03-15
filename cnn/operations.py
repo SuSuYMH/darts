@@ -1,7 +1,13 @@
 import torch
 import torch.nn as nn
 
+'''
+各种module
+'''
+
+
 OPS = {
+  # 卷积的后面参数分别为 in_channels,out_channels, kernel_size, stride=1, padding=0,
   'none' : lambda C, stride, affine: Zero(stride),
   'avg_pool_3x3' : lambda C, stride, affine: nn.AvgPool2d(3, stride=stride, padding=1, count_include_pad=False),
   'max_pool_3x3' : lambda C, stride, affine: nn.MaxPool2d(3, stride=stride, padding=1),
