@@ -4,6 +4,9 @@ from operations import *
 from torch.autograd import Variable
 from utils import drop_path
 
+"""
+根据已经搜索好的aplha去构建
+"""
 
 class Cell(nn.Module):
 
@@ -16,7 +19,8 @@ class Cell(nn.Module):
     else:
       self.preprocess0 = ReLUConvBN(C_prev_prev, C, 1, 1, 0)
     self.preprocess1 = ReLUConvBN(C_prev, C, 1, 1, 0)
-    
+
+    # 加载genotype
     if reduction:
       op_names, indices = zip(*genotype.reduce)
       concat = genotype.reduce_concat

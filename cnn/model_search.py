@@ -155,6 +155,7 @@ cells[7]: cell = Cell(4, 4, 256, 256, 64, false,  false) 输出[N,64*4,h,w]
     ]
 
   def arch_parameters(self):
+    # 返回架构参数
     return self._arch_parameters
 
 

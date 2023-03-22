@@ -19,7 +19,7 @@ from model import NetworkCIFAR as Network
 
 parser = argparse.ArgumentParser("cifar")
 parser.add_argument('--data', type=str, default='../data', help='location of the data corpus')
-parser.add_argument('--batch_size', type=int, default=96, help='batch size')
+parser.add_argument('--batch_size', type=int, default=16, help='batch size')
 parser.add_argument('--learning_rate', type=float, default=0.025, help='init learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
 parser.add_argument('--weight_decay', type=float, default=3e-4, help='weight decay')
@@ -62,12 +62,17 @@ def main():
   torch.cuda.set_device(args.gpu)
   cudnn.benchmark = True
   torch.manual_seed(args.seed)
-  cudnn.enabled=True
+  cudnn.enabled = True
   torch.cuda.manual_seed(args.seed)
   logging.info('gpu device = %d' % args.gpu)
   logging.info("args = %s", args)
 
+  # 得到train_search里学好的normal cell 和reduction cell，genotypes.DARTS就是选的学好的DARTS_V2
+  # args.arch参数默认default是DARTS，然后eval直接进行字符串的运算得到genotypes.DARTS，就是选的学好的DARTS_V2
+  # DARTS_V2 = Genotype(normal=[('sep_conv_3x3', 0), ('sep_conv_3x3', 1), ('sep_conv_3x3', 0), ('sep_conv_3x3', 1), ('sep_conv_3x3', 1), ('skip_connect', 0), ('skip_connect', 0), ('dil_conv_3x3', 2)], normal_concat=[2, 3, 4, 5], reduce=[('max_pool_3x3', 0), ('max_pool_3x3', 1), ('skip_connect', 2), ('max_pool_3x3', 1), ('max_pool_3x3', 0), ('skip_connect', 2), ('skip_connect', 2), ('max_pool_3x3', 1)], reduce_concat=[2, 3, 4, 5])
   genotype = eval("genotypes.%s" % args.arch)
+  # 这里的Network用的是model.py的NetworkCIFAR
+  # 见17行这里的network是指networkcifar
   model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, genotype)
   model = model.cuda()
 
@@ -128,11 +133,16 @@ def train(train_queue, model, criterion, optimizer):
     nn.utils.clip_grad_norm(model.parameters(), args.grad_clip)
     optimizer.step()
 
-    prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
     n = input.size(0)
-    objs.update(loss.data[0], n)
-    top1.update(prec1.data[0], n)
-    top5.update(prec5.data[0], n)
+    # 计算一下当前的acc
+    prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
+    # parser.add_argument('--report_freq', type=float, default=5, help='report frequency')
+    # objs.update(loss.data[0], n)
+    # top1.update(prec1.data[0], n)
+    # top5.update(prec5.data[0], n)
+    objs.update(loss.data, n)
+    top1.update(prec1.data, n)
+    top5.update(prec5.data, n)
 
     if step % args.report_freq == 0:
       logging.info('train %03d %e %f %f', step, objs.avg, top1.avg, top5.avg)

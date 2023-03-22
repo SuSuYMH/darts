@@ -109,6 +109,7 @@ def main():
       sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[split:num_train]),
       pin_memory=True, num_workers=2)
 
+  # 更新架构
   architect = Architect(model, args)
 
   for epoch in range(args.epochs):
@@ -152,6 +153,7 @@ def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr):
     target_search = Variable(target_search, requires_grad=False).cuda(non_blocking=True)
 
     # 对α进行更新，对应伪代码的第一步，也就是用公式6
+    # 训练集输入、标签；验证集输入、标签；学习率、优化器
     architect.step(input, target, input_search, target_search, lr, optimizer, unrolled=args.unrolled)
     # 对w进行更新，对应伪代码的第二步
     optimizer.zero_grad()  # 清除之前学到的梯度的参数

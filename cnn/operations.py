@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 '''
-各种module
+各种module的具体实现
 '''
 
 
