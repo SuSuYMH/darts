@@ -117,9 +117,12 @@ class Architect(object):
 
     # 对α进行更新
     for v, g in zip(self.model.arch_parameters(), dalpha):
+      # 这只是为了应对v.grad没有值的情况，实际上就是对 架构参数.grad给予论文中提到的梯度
       if v.grad is None:
+        # 结构参数没有梯度的话，就把该参数在dalpha中对应的梯度赋给他
         v.grad = Variable(g.data)
       else:
+        # 如果有，就也是赋值给他
         v.grad.data.copy_(g.data)
 
   # 用w − ξ*dwLtrain(w, α)去更新模型里面的w

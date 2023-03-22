@@ -73,6 +73,7 @@ def main():
   genotype = eval("genotypes.%s" % args.arch)
   # 这里的Network用的是model.py的NetworkCIFAR
   # 见17行这里的network是指networkcifar
+  # 直接用这个学好的DARTS_V2的Genotype（两种每个cell内部的连接情况）去构建出来模型
   model = Network(args.init_channels, CIFAR_CLASSES, args.layers, args.auxiliary, genotype)
   model = model.cuda()
 

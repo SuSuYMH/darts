@@ -54,6 +54,7 @@ class Cell(nn.Module):
 
   #cell中的计算过程，前向传播时自动调用
   def forward(self, s0, s1, weights):
+    # 分别对前置节点进行一些操作，得到输入的特征图
     s0 = self.preprocess0(s0)
     s1 = self.preprocess1(s1)
 
@@ -73,6 +74,7 @@ class Network(nn.Module):
 
   def __init__(self, C, num_classes, layers, criterion, steps=4, multiplier=4, stem_multiplier=3):
     super(Network, self).__init__()
+    # 定义各种构建网络结构需要的参数
     self._C = C  # 初始通道数
     self._num_classes = num_classes
     self._layers = layers
@@ -122,13 +124,16 @@ cells[7]: cell = Cell(4, 4, 256, 256, 64, false,  false) 输出[N,64*4,h,w]
 '''
 
   def new(self):
+    # 构建一个架构参数相同的模型
     model_new = Network(self._C, self._num_classes, self._layers, self._criterion).cuda()
     for x, y in zip(model_new.arch_parameters(), self.arch_parameters()):
         x.data.copy_(y.data)
     return model_new
 
   def forward(self, input):
+    # 模型前向传播的时候要做的事情
     s0 = s1 = self.stem(input)
+    # 每次前向传播是之前都要相应的softmax一下
     for i, cell in enumerate(self.cells):
       if cell.reduction:
         weights = F.softmax(self.alphas_reduce, dim=-1)
@@ -140,10 +145,12 @@ cells[7]: cell = Cell(4, 4, 256, 256, 64, false,  false) 输出[N,64*4,h,w]
     return logits
 
   def _loss(self, input, target):
+    # 计算loss
     logits = self(input)
     return self._criterion(logits, target) 
 
   def _initialize_alphas(self):
+    # 初始化架构参数
     k = sum(1 for i in range(self._steps) for n in range(2+i))
     num_ops = len(PRIMITIVES)
 

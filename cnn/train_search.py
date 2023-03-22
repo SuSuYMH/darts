@@ -109,7 +109,7 @@ def main():
       sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[split:num_train]),
       pin_memory=True, num_workers=2)
 
-  # 更新架构
+  # 更新架构参数用的
   architect = Architect(model, args)
 
   for epoch in range(args.epochs):
@@ -118,8 +118,12 @@ def main():
     lr = scheduler.get_lr()[0]
     logging.info('epoch %d lr %e', epoch, lr)
 
+    # 每个epoch都输出一下当前的cell结构，也就是这个genotype
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    print("当前{}的Cell结构为：".format(epoch))
     genotype = model.genotype()
     logging.info('genotype = %s', genotype)
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
     print(F.softmax(model.alphas_normal, dim=-1))
     print(F.softmax(model.alphas_reduce, dim=-1))
@@ -140,7 +144,7 @@ def train(train_queue, valid_queue, model, architect, criterion, optimizer, lr):
   top1 = utils.AvgrageMeter()  # 前1预测正确的概率
   top5 = utils.AvgrageMeter()  # 前5预测正确的概率
 
-  for step, (input, target) in enumerate(train_queue):  # 每个step取出一个batch，batchsize是64（256个数据对）
+  for step, (input, target) in enumerate(train_queue):  # 每个step取出一个batch，batchsize是64（256个数据对）,为了老子能跑已经改成16了
     model.train()
     n = input.size(0)
 
