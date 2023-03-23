@@ -46,12 +46,12 @@ args = parser.parse_args()
 args.save = 'search-{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
 utils.create_exp_dir(args.save, scripts_to_save=glob.glob('*.py'))
 
-log_format = '%(asctime)s %(message)s'
-logging.basicConfig(stream=sys.stdout, level=logging.INFO,
-    format=log_format, datefmt='%m/%d %I:%M:%S %p')
-fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
-fh.setFormatter(logging.Formatter(log_format))
-logging.getLogger().addHandler(fh)
+# log_format = '%(asctime)s %(message)s'
+# logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+#     format=log_format, datefmt='%m/%d %I:%M:%S %p')
+# fh = logging.FileHandler(os.path.join(args.save, 'log.txt'))
+# fh.setFormatter(logging.Formatter(log_format))
+# logging.getLogger().addHandler(fh)
 
 
 CIFAR_CLASSES = 10
@@ -199,9 +199,9 @@ def infer(valid_queue, model, criterion):
 
     prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
     n = input.size(0)
-    objs.update(loss.data[0], n)
-    top1.update(prec1.data[0], n)
-    top5.update(prec5.data[0], n)
+    objs.update(loss.data, n)
+    top1.update(prec1.data, n)
+    top5.update(prec5.data, n)
 
     if step % args.report_freq == 0:
       logging.info('valid %03d %e %f %f', step, objs.avg, top1.avg, top5.avg)
